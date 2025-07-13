@@ -474,14 +474,14 @@ function playNaturalSoftBeep(secondsLeft) {
 
   // 시간에 따라 주파수 조절
   const settings = {
-    10: { freq: 220, vol: 0.1 },
-    5: { freq: 210, vol: 0.12 },
-    4: { freq: 200, vol: 0.13 },
-    3: { freq: 180, vol: 0.14 },
-    2: { freq: 150, vol: 0.16 },
-    1: { freq: 120, vol: 0.18 }
+    10: { freq: 220, vol: 0.12 },
+    5: { freq: 200, vol: 0.12 },
+    4: { freq: 180, vol: 0.13 },
+    3: { freq: 160, vol: 0.14 },
+    2: { freq: 130, vol: 0.15 },
+    1: { freq: 100, vol: 0.15 }
   };
-  const { freq, vol } = settings[secondsLeft] || { freq: 250, vol: 0.1 };
+  const { freq, vol } = settings[secondsLeft] || { freq: 220, vol: 0.1 };
 
   // 설정값 적용
   osc.frequency.setValueAtTime(freq, ctx.currentTime);
@@ -491,8 +491,8 @@ function playNaturalSoftBeep(secondsLeft) {
   gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 1.2);
 
   // delay (잔잔한 잔향 느낌)
-  delay.delayTime.value = 0.15;
-  feedback.gain.value = 0.25;
+  delay.delayTime.value = 0.1;
+  feedback.gain.value = 0.2;
 
   // 오디오 체인 구성
   osc.connect(gain);
