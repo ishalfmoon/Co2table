@@ -483,9 +483,10 @@ function loadStickers() {
 startStopBtn.addEventListener('click', startOrStop);
 pauseBtn.addEventListener('click', togglePause);
 
-// 페이지 로드 시 스티커 표시
-loadStickers();
 
+// 페이지가 로드될 때 훈련 기록 스티커를 로드
+window.addEventListener('load', loadStickers);
+  
 </script>
 
 </body>
