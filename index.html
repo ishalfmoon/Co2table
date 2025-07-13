@@ -471,15 +471,29 @@ function saveTrainingLog() {
 function loadStickers() {
   stickerContainer.innerHTML = '';
   let logs = JSON.parse(localStorage.getItem('co2TrainingLogs') || '[]');
-  
-  const stickerEmojis = ['⭐', '🌟', '✨', '💫', '🔥', '🎉', '🎈', '🌈', '🍀', '🦄', '🫠', '🫁', '🐬', '🐋']; // 원하는 이모지 리스트
-  
-  logs.forEach(() => {
+
+  const stickerEmojis = ['⭐', '🌟', '✨', '💫', '🔥', '🎉', '🎈', '🌈', '🍀', '🦄'];
+
+  logs.forEach((log) => {
     const sticker = document.createElement('div');
     sticker.className = 'sticker';
+
     // 랜덤 이모지 선택
     const randomIndex = Math.floor(Math.random() * stickerEmojis.length);
     sticker.textContent = stickerEmojis[randomIndex];
+
+    // 날짜 문자열 (보기 좋게 변환)
+    const date = new Date(log);
+    const dateString = date.toLocaleString(); // 현지 시간과 포맷으로 변경
+
+    // 마우스 올리면 툴팁으로 날짜 보여주기
+    sticker.title = dateString;
+
+    // 클릭하면 alert로 날짜 보여주기
+    sticker.addEventListener('click', () => {
+      alert(`Training Date:\n${dateString}`);
+    });
+
     stickerContainer.appendChild(sticker);
   });
 }
