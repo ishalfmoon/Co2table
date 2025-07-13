@@ -458,7 +458,7 @@ function playInhale() {
   osc.connect(gain);
   gain.connect(ctx.destination);
   osc.start();
-  osc.stop(ctx.currentTime + 1.5);
+  osc.stop(ctx.currentTime + 2);
 }
 
 function playNaturalSoftBeep(secondsLeft) {
@@ -474,12 +474,12 @@ function playNaturalSoftBeep(secondsLeft) {
 
   // 시간에 따라 주파수 조절
   const settings = {
-    10: { freq: 220, vol: 0.12 },
-    5: { freq: 200, vol: 0.12 },
-    4: { freq: 180, vol: 0.13 },
-    3: { freq: 160, vol: 0.14 },
+    10: { freq: 200, vol: 0.12 },
+    5: { freq: 160, vol: 0.12 },
+    4: { freq: 150, vol: 0.13 },
+    3: { freq: 140, vol: 0.14 },
     2: { freq: 130, vol: 0.15 },
-    1: { freq: 100, vol: 0.15 }
+    1: { freq: 120, vol: 0.15 }
   };
   const { freq, vol } = settings[secondsLeft] || { freq: 220, vol: 0.1 };
 
