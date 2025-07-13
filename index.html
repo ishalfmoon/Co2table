@@ -375,21 +375,15 @@ function countdown(seconds, callback) {
       if (remaining > 0 && remaining % 30 === 0) {
         playSoftBeep();
       }
-      if (remaining === 10) {
-        playSoftBeep();
-      }
-      if (remaining > 0 && remaining <= 3) {
-        playSoftBeep();
-      }
+      
+      if ([10, 5, 4, 3, 2, 1].includes(remaining)) {
+      playNaturalSoftBeep(remaining);
+      }  
 
       if (remaining <= 0) {
         clearInterval(interval);
         interval = null;
         callbackRef();
-
-      if ([10, 5, 4, 3, 2, 1].includes(remaining)) {
-      playNaturalSoftBeep(remaining);
-}  
       }
     }
   }, 1000);
