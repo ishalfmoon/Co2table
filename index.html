@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <title>CO₂ Table Trainer</title>
 <style>
-  /* 스타일은 이전 코드와 동일 */
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #002b44;
@@ -142,6 +141,17 @@
     opacity: 1;
     box-shadow: 0 0 8px rgba(123, 211, 255, 0.9);
   }
+  #stickerContainer {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .sticker {
+    font-size: 28px;
+    cursor: default;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
@@ -168,11 +178,14 @@
   Rounds: <input type="number" id="rounds" value="8"><br>
   Rest Decrease (sec): <input type="number" id="restDecrease" value="15"><br>
 </div>
+
+<!-- 훈련 완료 후 붙는 칭찬 스티커 컨테이너 -->
+<div id="stickerContainer" title="훈련 기록 스티커"></div>
+
 <script>
 let currentRound = 0;
 let interval = null;
 let isPaused = false;
-let isRunning = false;
 let remaining = 0;
 let total = 0;
 let callbackRef = null;
@@ -209,20 +222,26 @@ function resetVisuals() {
 }
 
 function startOrStop() {
-  if (!isRunning) {
+  if (startStopBtn.textContent === 'Start') {
     startTraining();
+    startStopBtn.textContent = 'Stop';
+    pauseBtn.disabled = false;
+    pauseBtn.textContent = 'Pause';
   } else {
     stopTraining();
+    startStopBtn.textContent = 'Start';
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = 'Pause';
   }
 }
 
 function startTraining() {
-  if (isRunning) return; // 중복 시작 방지
-
-  isRunning = true;
+  clearInterval(interval);
+  interval = null;
   isPaused = false;
-  currentRound = 0;
+  pauseBtn.textContent = 'Pause';
 
+  currentRound = 0;
   const holdInput = document.getElementById('holdTime');
   const restInput = document.getElementById('restTime');
   const roundsInput = document.getElementById('rounds');
@@ -238,22 +257,13 @@ function startTraining() {
   statusText.textContent = 'Ready';
   roundText.textContent = '';
   countdownText.textContent = '0:00';
-
-  startStopBtn.textContent = 'Stop';
-  pauseBtn.disabled = false;
-  pauseBtn.textContent = 'Pause';
-
   runRound(holdTime);
 }
 
 function stopTraining() {
-  if (!isRunning) return;
-
-  isRunning = false;
-  isPaused = false;
-
   clearInterval(interval);
   interval = null;
+  isPaused = false;
   currentRound = 0;
   remaining = 0;
   total = 0;
@@ -264,15 +274,9 @@ function stopTraining() {
   phase = '';
 
   resetVisuals();
-
-  startStopBtn.textContent = 'Start';
-  pauseBtn.disabled = true;
-  pauseBtn.textContent = 'Pause';
 }
 
 function runRound(holdTime) {
-  if (!isRunning) return;
-
   if (currentRound >= rounds) {
     statusText.textContent = 'Done ✔';
     roundText.textContent = '';
@@ -283,9 +287,9 @@ function runRound(holdTime) {
     startStopBtn.textContent = 'Start';
     updateFlowHighlight(-1);
 
-    isRunning = false;
-    clearInterval(interval);
-    interval = null;
+    // 훈련 완료 기록 저장
+    saveTrainingRecord();
+
     return;
   }
 
@@ -298,17 +302,12 @@ function runRound(holdTime) {
   setModeVisual('hold');
   statusText.textContent = 'Hold';
   countdown(holdTime, () => {
-    if (!isRunning) return;  // stop 중일 수 있음
-
     phase = 'breath';
     setModeVisual('breath');
     statusText.textContent = 'Breath';
     updateFlowHighlight(segmentIndex + 1);
     playInhale();
-
     countdown(restTime, () => {
-      if (!isRunning) return;  // stop 중일 수 있음
-
       restTime -= restDecrease;
       if (restTime < 10) restTime = 10;
       runRound(holdTime);
@@ -335,28 +334,26 @@ function countdown(seconds, callback) {
   callbackRef = callback;
   updateVisuals();
 
-  if (!isRunning) return;
-
   interval = setInterval(() => {
-    if (isPaused) return;
+    if (!isPaused) {
+      remaining--;
+      updateVisuals();
 
-    remaining--;
-    updateVisuals();
+      if (remaining > 0 && remaining % 30 === 0) {
+        playSoftBeep();
+      }
+      if (remaining === 10) {
+        playSoftBeep();
+      }
+      if (remaining > 0 && remaining <= 3) {
+        playSoftBeep();
+      }
 
-    if (remaining > 0 && remaining % 30 === 0) {
-      playSoftBeep();
-    }
-    if (remaining === 10) {
-      playSoftBeep();
-    }
-    if (remaining > 0 && remaining <= 3) {
-      playSoftBeep();
-    }
-
-    if (remaining <= 0) {
-      clearInterval(interval);
-      interval = null;
-      if (typeof callbackRef === 'function') callbackRef();
+      if (remaining <= 0) {
+        clearInterval(interval);
+        interval = null;
+        callbackRef();
+      }
     }
   }, 1000);
 }
@@ -373,10 +370,32 @@ function updateVisuals() {
 }
 
 function togglePause() {
-  if (!isRunning) return; // 실행 중이 아닐 때 pause 무시
-
   isPaused = !isPaused;
   pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+
+  if (!isPaused && remaining > 0 && interval === null) {
+    interval = setInterval(() => {
+      if (!isPaused) {
+        remaining--;
+        updateVisuals();
+
+        if (remaining > 0 && remaining % 30 === 0) playSoftBeep();
+        if (remaining === 10) playSoftBeep();
+        if (remaining > 0 && remaining <= 3) playSoftBeep();
+
+        if (remaining <= 0) {
+          clearInterval(interval);
+          interval = null;
+          callbackRef();
+        }
+      }
+    }, 1000);
+  }
+
+  if (isPaused && interval !== null) {
+    clearInterval(interval);
+    interval = null;
+  }
 }
 
 function playSoftBeep() {
@@ -435,10 +454,38 @@ function updateFlowHighlight(index) {
   });
 }
 
+// 훈련 완료 기록 저장 & 스티커 붙이기
+function saveTrainingRecord() {
+  const trainingLog = JSON.parse(localStorage.getItem('trainingLog') || '[]');
+  const now = new Date().toISOString();
+  trainingLog.push({ date: now });
+  localStorage.setItem('trainingLog', JSON.stringify(trainingLog));
+  addSticker(now);
+}
+
+// 기록 불러와서 스티커 생성
+function loadStickersFromLog() {
+  const trainingLog = JSON.parse(localStorage.getItem('trainingLog') || '[]');
+  trainingLog.forEach(record => addSticker(record.date));
+}
+
+// 스티커 하나 생성 함수
+function addSticker(date) {
+  const container = document.getElementById('stickerContainer');
+  const sticker = document.createElement('div');
+  sticker.classList.add('sticker');
+  sticker.textContent = '⭐'; // 원하는 스티커 이모지 가능
+  sticker.title = `훈련 완료: ${new Date(date).toLocaleString()}`;
+  container.appendChild(sticker);
+}
+
 startStopBtn.addEventListener('click', startOrStop);
 pauseBtn.addEventListener('click', togglePause);
 
-resetVisuals();
+window.onload = function() {
+  loadStickersFromLog();
+  resetVisuals();
+};
 </script>
 </body>
 </html>
