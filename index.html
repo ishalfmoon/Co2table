@@ -451,7 +451,7 @@ function playInhale() {
   const gain = ctx.createGain();
 
   osc.frequency.setValueAtTime(150, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 1.5);
+  osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 1.5);
   gain.gain.setValueAtTime(0.5, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.5);
 
@@ -475,11 +475,11 @@ function playNaturalSoftBeep(secondsLeft) {
   // 시간에 따라 주파수 조절
   const settings = {
     10: { freq: 220, vol: 0.1 },
-    5: { freq: 280, vol: 0.12 },
-    4: { freq: 320, vol: 0.13 },
-    3: { freq: 360, vol: 0.14 },
-    2: { freq: 420, vol: 0.16 },
-    1: { freq: 480, vol: 0.18 }
+    5: { freq: 210, vol: 0.12 },
+    4: { freq: 200, vol: 0.13 },
+    3: { freq: 180, vol: 0.14 },
+    2: { freq: 150, vol: 0.16 },
+    1: { freq: 120, vol: 0.18 }
   };
   const { freq, vol } = settings[secondsLeft] || { freq: 250, vol: 0.1 };
 
