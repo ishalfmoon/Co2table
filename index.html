@@ -120,19 +120,18 @@
     font-size: 1.1rem;
     color: #cce7ff;
     cursor: pointer;
+    z-index: 20;
   }
   .inputs {
     position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translate(-50%, 0);
-    background: rgba(0, 43, 68, 0.95);
+    top: 3.2rem; /* 버튼 바로 아래 */
+    right: 1rem;
+    background: rgba(204, 231, 255, 0.08); /* 밝고 부드러운 배경 */
     padding: 1rem;
     border-radius: 10px;
     box-shadow: 0 0 12px rgba(0,0,0,0.4);
-    margin-top: 60px;
     display: none;
-    z-index: 10;
+    z-index: 15;
     text-align: left;
   }
   .inputs.open {
