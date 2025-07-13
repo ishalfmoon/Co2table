@@ -386,6 +386,10 @@ function countdown(seconds, callback) {
         clearInterval(interval);
         interval = null;
         callbackRef();
+
+      if ([10, 5, 4, 3, 2, 1].includes(remaining)) {
+      playNaturalSoftBeep(remaining);
+}  
       }
     }
   }, 1000);
@@ -462,6 +466,53 @@ function playInhale() {
   osc.start();
   osc.stop(ctx.currentTime + 1.5);
 }
+
+function playNaturalSoftBeep(secondsLeft) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const delay = ctx.createDelay();
+  const feedback = ctx.createGain();
+
+  // 부드럽게 흘러가는 triangle 파형
+  osc.type = 'triangle';
+
+  // 시간에 따라 주파수 조절
+  const settings = {
+    10: { freq: 220, vol: 0.1 },
+    5: { freq: 280, vol: 0.12 },
+    4: { freq: 320, vol: 0.13 },
+    3: { freq: 360, vol: 0.14 },
+    2: { freq: 420, vol: 0.16 },
+    1: { freq: 480, vol: 0.18 }
+  };
+  const { freq, vol } = settings[secondsLeft] || { freq: 250, vol: 0.1 };
+
+  // 설정값 적용
+  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+  gain.gain.setValueAtTime(0, ctx.currentTime);
+  gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.2);
+  gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 1.2);
+
+  // delay (잔잔한 잔향 느낌)
+  delay.delayTime.value = 0.15;
+  feedback.gain.value = 0.25;
+
+  // 오디오 체인 구성
+  osc.connect(gain);
+  gain.connect(delay);
+  delay.connect(feedback);
+  feedback.connect(delay);
+  delay.connect(ctx.destination);
+  gain.connect(ctx.destination);  // 원음도 출력
+
+  osc.start();
+  osc.stop(ctx.currentTime + 1.3);
+}
+
+  
 
 function createFlowBar(rounds) {
   const flowBar = document.getElementById('flowBar');
