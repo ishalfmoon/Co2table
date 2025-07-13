@@ -109,6 +109,7 @@
   .inputs {
     margin-top: 2rem;
     color: #cce7ff;
+    user-select: none;
   }
   .inputs input {
     margin: 0.3rem;
@@ -117,6 +118,7 @@
     border-radius: 3px;
     width: 70px;
     text-align: center;
+    font-family: monospace;
   }
   .flow-bar {
     margin-top: 20px;
@@ -141,7 +143,6 @@
     opacity: 1;
     box-shadow: 0 0 8px rgba(123, 211, 255, 0.9);
   }
-  /* 스티커 컨테이너 스타일 */
   #stickerContainer {
     margin-top: 20px;
     display: flex;
@@ -176,17 +177,16 @@
 
 <div class="flow-bar" id="flowBar"></div>
 
+<div id="stickerContainer"></div>
+
 <div class="controls">
   <button class="start-btn" id="startStopBtn">Start</button>
   <button class="pause-btn" id="pauseBtn" disabled>Pause</button>
 </div>
 
-<!-- 훈련 기록 스티커 표시 영역 -->
-<div id="stickerContainer"></div>
-  
 <div class="inputs">
-  Hold Time (sec): <input type="number" id="holdTime" value="90"><br>
-  Rest Start Time (sec): <input type="number" id="restTime" value="105"><br>
+  Hold Time (mm:ss): <input type="text" id="holdTime" value="1:30" placeholder="mm:ss"><br>
+  Rest Start Time (mm:ss): <input type="text" id="restTime" value="2:00" placeholder="mm:ss"><br>
   Rounds: <input type="number" id="rounds" value="8"><br>
   Rest Decrease (sec): <input type="number" id="restDecrease" value="15"><br>
 </div>
@@ -243,6 +243,23 @@ function startOrStop() {
   }
 }
 
+// mm:ss -> 초 변환 함수
+function parseTimeToSeconds(timeStr) {
+  const parts = timeStr.split(':');
+  if (parts.length === 1) {
+    // 초 단위로만 입력한 경우 ex) "90"
+    const secs = parseInt(parts[0]);
+    return isNaN(secs) ? 0 : secs;
+  } else if (parts.length === 2) {
+    const mins = parseInt(parts[0]);
+    const secs = parseInt(parts[1]);
+    if (isNaN(mins) || isNaN(secs) || secs >= 60 || mins < 0 || secs < 0) return 0;
+    return mins * 60 + secs;
+  } else {
+    return 0;
+  }
+}
+
 function startTraining() {
   clearInterval(interval);
   interval = null;
@@ -250,15 +267,21 @@ function startTraining() {
   pauseBtn.textContent = 'Pause';
 
   currentRound = 0;
-  const holdInput = document.getElementById('holdTime');
-  const restInput = document.getElementById('restTime');
-  const roundsInput = document.getElementById('rounds');
-  const restDecreaseInput = document.getElementById('restDecrease');
+  const holdInput = document.getElementById('holdTime').value.trim();
+  const restInput = document.getElementById('restTime').value.trim();
+  const roundsInput = document.getElementById('rounds').value;
+  const restDecreaseInput = document.getElementById('restDecrease').value;
 
-  restTime = parseInt(restInput.value);
-  rounds = parseInt(roundsInput.value);
-  restDecrease = parseInt(restDecreaseInput.value);
-  const holdTime = parseInt(holdInput.value);
+  const holdTime = parseTimeToSeconds(holdInput);
+  restTime = parseTimeToSeconds(restInput);
+  rounds = parseInt(roundsInput);
+  restDecrease = parseInt(restDecreaseInput);
+
+  if (holdTime <= 0 || restTime <= 0 || rounds <= 0 || restDecrease < 0) {
+    alert('Please enter valid positive time values.');
+    resetVisuals();
+    return;
+  }
 
   createFlowBar(rounds);
 
@@ -471,29 +494,14 @@ function saveTrainingLog() {
 function loadStickers() {
   stickerContainer.innerHTML = '';
   let logs = JSON.parse(localStorage.getItem('co2TrainingLogs') || '[]');
-
-  const stickerEmojis = ['⭐', '🌟', '✨', '💫', '🔥', '🎉', '🎈', '🌈', '🍀', '🦄'];
-
   logs.forEach((log) => {
     const sticker = document.createElement('div');
     sticker.className = 'sticker';
-
-    // 랜덤 이모지 선택
-    const randomIndex = Math.floor(Math.random() * stickerEmojis.length);
-    sticker.textContent = stickerEmojis[randomIndex];
-
-    // 날짜 문자열 (보기 좋게 변환)
-    const date = new Date(log);
-    const dateString = date.toLocaleString(); // 현지 시간과 포맷으로 변경
-
-    // 마우스 올리면 툴팁으로 날짜 보여주기
-    sticker.title = dateString;
-
-    // 클릭하면 alert로 날짜 보여주기
-    sticker.addEventListener('click', () => {
-      alert(`Training Date:\n${dateString}`);
-    });
-
+    // 랜덤 이모지 배열
+    const emojis = ['⭐', '🔥', '💧', '🌟', '🍀', '🎯', '✨', '🌈', '🎵', '🚀'];
+    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+    sticker.textContent = emoji;
+    sticker.title = new Date(log).toLocaleString();  // 마우스 오버시 날짜 표시
     stickerContainer.appendChild(sticker);
   });
 }
@@ -502,10 +510,9 @@ function loadStickers() {
 startStopBtn.addEventListener('click', startOrStop);
 pauseBtn.addEventListener('click', togglePause);
 
+// 페이지 로드 시 스티커 표시
+loadStickers();
 
-// 페이지가 로드될 때 훈련 기록 스티커를 로드
-window.addEventListener('load', loadStickers);
-  
 </script>
 
 </body>
