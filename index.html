@@ -331,14 +331,16 @@ function runRound(holdTime) {
   phase = 'breath';
   setModeVisual('breath');
   statusText.textContent = 'Breath';
+  updateFlowHighlight(segmentIndex);
+  playInhale();
   
-  countdown(holdTime, () => {
+  countdown(restTime, () => {
     phase = 'hold';
     setModeVisual('hold');
     statusText.textContent = 'Hold';
     updateFlowHighlight(segmentIndex + 1);
     playInhale();
-    countdown(restTime, () => {
+    countdown(holdTime, () => {
       restTime -= restDecrease;
       if (restTime < 10) restTime = 10;
       runRound(holdTime);
