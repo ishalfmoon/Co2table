@@ -471,10 +471,15 @@ function saveTrainingLog() {
 function loadStickers() {
   stickerContainer.innerHTML = '';
   let logs = JSON.parse(localStorage.getItem('co2TrainingLogs') || '[]');
+  
+  const stickerEmojis = ['⭐', '🌟', '✨', '💫', '🔥', '🎉', '🎈', '🌈', '🍀', '🦄', '🫠', '🫁', '🐬', '🐋']; // 원하는 이모지 리스트
+  
   logs.forEach(() => {
     const sticker = document.createElement('div');
     sticker.className = 'sticker';
-    sticker.textContent = '⭐';  // 스티커 모양 (별 모양)
+    // 랜덤 이모지 선택
+    const randomIndex = Math.floor(Math.random() * stickerEmojis.length);
+    sticker.textContent = stickerEmojis[randomIndex];
     stickerContainer.appendChild(sticker);
   });
 }
