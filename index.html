@@ -462,7 +462,7 @@ function playInhale() {
   const gain = ctx.createGain();
   gain.gain.setValueAtTime(0, ctx.currentTime);
   gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.6); // 점점 들이마심
-  gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 2);      // 숨소리 사라짐
+  gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 3);      // 숨소리 사라짐
 
   noise.connect(gain);
   gain.connect(ctx.destination);
