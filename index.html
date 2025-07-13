@@ -329,13 +329,14 @@ function runRound(holdTime) {
   const segmentIndex = (currentRound - 1) * 2;
   updateFlowHighlight(segmentIndex);
 
-  phase = 'hold';
-  setModeVisual('hold');
-  statusText.textContent = 'Hold';
+  phase = 'breath';
+  setModeVisual('breath');
+  statusText.textContent = 'Breath';
+  
   countdown(holdTime, () => {
-    phase = 'breath';
-    setModeVisual('breath');
-    statusText.textContent = 'Breath';
+    phase = 'hold';
+    setModeVisual('hold');
+    statusText.textContent = 'Hold';
     updateFlowHighlight(segmentIndex + 1);
     playInhale();
     countdown(restTime, () => {
