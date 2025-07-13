@@ -447,37 +447,27 @@ function playSoftBeep() {
 
 function playInhale() {
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const osc = ctx.createOscillator();
+  const bufferSize = ctx.sampleRate * 2;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const output = buffer.getChannelData(0);
+
+  // 화이트 노이즈 생성
+  for (let i = 0; i < bufferSize; i++) {
+    output[i] = (Math.random() * 2 - 1) * 0.3;
+  }
+
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+
   const gain = ctx.createGain();
-  const delay = ctx.createDelay();
-  const feedback = ctx.createGain();
-
-  // 더 부드러운 파형
-  osc.type = 'triangle';
-
-  // 음정은 낮고 길게, 편안하게
-  osc.frequency.setValueAtTime(100, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 2.5);
-
-  // 볼륨 조절도 부드럽게 숨처럼
   gain.gain.setValueAtTime(0, ctx.currentTime);
-  gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.8);
-  gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 2.8);
+  gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.6); // 점점 들이마심
+  gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 2);      // 숨소리 사라짐
 
-  // 은은한 잔향
-  delay.delayTime.value = 0.15;
-  feedback.gain.value = 0.25;
-
-  // 체인 구성
-  osc.connect(gain);
-  gain.connect(delay);
-  delay.connect(feedback);
-  feedback.connect(delay);
-  delay.connect(ctx.destination);
-  gain.connect(ctx.destination); // 원음도 출력
-
-  osc.start();
-  osc.stop(ctx.currentTime + 3);
+  noise.connect(gain);
+  gain.connect(ctx.destination);
+  noise.start();
+  noise.stop(ctx.currentTime + 2);
 }
 
   
