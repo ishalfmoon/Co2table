@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>CO₂ Table Trainer</title>
+<meta charset="UTF-8" /> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CO₂ Round Table Trainer</title>
 <style>
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #002b44;
     color: #cce7ff;
-    margin: 0;
-    padding: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -20,9 +19,15 @@
     height: 280px;
     margin-top: 1rem;
   }
+  .controls, .inputs {
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+  
   svg {
     transform: rotate(-90deg);
   }
+  
   .circle-fill {
     fill: rgba(34, 103, 153, 0.15);
   }
@@ -158,6 +163,59 @@
   .sticker:hover {
     transform: scale(1.3);
   }
+
+
+    /* 반응형 스타일 */
+    @media (max-width: 480px) {
+      body {
+        padding: 1rem;
+      }
+
+      .circle-timer {
+        width: 200px;
+        height: 200px;
+      }
+
+      svg {
+        width: 200px;
+        height: 200px;
+      }
+
+      .inputs input {
+        width: 60px;
+        font-size: 14px;
+      }
+
+      .controls button {
+        font-size: 14px;
+        padding: 0.4rem 0.8rem;
+      }
+
+      #countdownText {
+        font-size: 2.4rem;
+      }
+
+      #statusText {
+        font-size: 1.6rem;
+      }
+
+      #roundText {
+        font-size: 1rem;
+      }
+
+      .flow-bar {
+        width: 160px;
+        height: 6px;
+      }
+
+      .sticker {
+        font-size: 24px;
+      }
+    }
+
+
+
+  
 </style>
 </head>
 <body>
