@@ -111,7 +111,14 @@
     margin-top: 2rem;
     color: #cce7ff;
     user-select: none;
+    display: none; /* 기본 숨김 */
+
   }
+
+  .inputs.open {
+    display: block; /* 토글시 보이기 */
+  }
+  
   .inputs input {
     margin: 0.3rem;
     padding: 0.4rem;
@@ -186,6 +193,7 @@
   <button class="start-btn" id="startStopBtn">Start</button>
   <button class="pause-btn" id="pauseBtn" disabled>Pause</button>
 </div>
+<button id="toggleInputsBtn" style="margin-left:10px;">⚙️ Settings</button>
 
 <div id="stickerContainer"></div>
 
@@ -220,6 +228,15 @@ const stickerContainer = document.getElementById("stickerContainer");
 const circleLength = 2 * Math.PI * 125;
 circle.setAttribute('stroke-dasharray', circleLength);
 circle.setAttribute('stroke-dashoffset', circleLength);
+
+
+const toggleInputsBtn = document.getElementById('toggleInputsBtn');
+const inputsDiv = document.querySelector('.inputs');
+
+toggleInputsBtn.addEventListener('click', () => {
+  inputsDiv.classList.toggle('open');
+});
+  
 
 function setProgress(percent) {
   const offset = circleLength * (1 - percent);
